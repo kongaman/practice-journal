@@ -23,10 +23,8 @@ public class MainApp extends Application {
 		// 2. Scene erstellen
 		Scene scene = new Scene(fxmlLoader.load(), 600, 400);
 
-		//		// 3. CSS laden (optional)
-		//		scene.getStylesheets().add(
-		//				getClass().getResource("styles.css").toExternalForm()
-		//				);
+		// 3. CSS laden (optional)
+		scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
 
 		// 4. Stage konfigurieren
 		stage.setTitle("Practice Journal");
