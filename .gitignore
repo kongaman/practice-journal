@@ -13,3 +13,4 @@ pom.xml.versionsBackup
 # System
 .DS_Store
 *.log
+/practicejournal.db

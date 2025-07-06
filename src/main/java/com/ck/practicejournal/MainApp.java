@@ -1,27 +1,41 @@
 package com.ck.practicejournal;
 
+import java.io.IOException;
+
+import com.ck.practicejournal.util.DatabaseManager;
+
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
-		Label label = new Label("Willkommen zum Gitarren-Tagebuch!");
-		StackPane root = new StackPane(label);
+	public void start(Stage stage) throws IOException {
+		DatabaseManager.initializeDatabase();
 
-		Scene scene = new Scene(root, 600, 400);
+		// 1. FXML laden
+		FXMLLoader fxmlLoader = new FXMLLoader(
+				MainApp.class.getResource("main-view.fxml")
+				);
 
-		primaryStage.setTitle("Gitarren Übungstagebuch");
-		primaryStage.setScene(scene);
-		primaryStage.show();
+		// 2. Scene erstellen
+		Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+
+		//		// 3. CSS laden (optional)
+		//		scene.getStylesheets().add(
+		//				getClass().getResource("styles.css").toExternalForm()
+		//				);
+
+		// 4. Stage konfigurieren
+		stage.setTitle("Practice Journal");
+		stage.setScene(scene);
+		stage.show();
 	}
 
 	public static void main(String[] args) {
-		launch(args);
+		launch();
 	}
 
 }
