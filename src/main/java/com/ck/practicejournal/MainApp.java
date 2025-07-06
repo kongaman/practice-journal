@@ -15,18 +15,12 @@ public class MainApp extends Application {
 	public void start(Stage stage) throws IOException {
 		DatabaseManager.initializeDatabase();
 
-		// 1. FXML laden
-		FXMLLoader fxmlLoader = new FXMLLoader(
-				MainApp.class.getResource("main-view.fxml")
-				);
+		FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("main-view.fxml"));
 
-		// 2. Scene erstellen
 		Scene scene = new Scene(fxmlLoader.load(), 600, 400);
 
-		// 3. CSS laden (optional)
 		scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
 
-		// 4. Stage konfigurieren
 		stage.setTitle("Practice Journal");
 		stage.setScene(scene);
 		stage.show();

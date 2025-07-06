@@ -16,7 +16,6 @@ public class DatabaseManager {
 		try (Connection conn = getConnection();
 				Statement stmt = conn.createStatement()) {
 
-			// Tabelle für Übungseinträge
 			String createEntriesTable = "CREATE TABLE IF NOT EXISTS entries ("
 					+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
 					+ "date TEXT NOT NULL,"
@@ -28,7 +27,6 @@ public class DatabaseManager {
 					+ "notes TEXT)";
 			stmt.execute(createEntriesTable);
 
-			// Tabelle für Ziele
 			String createGoalsTable = "CREATE TABLE IF NOT EXISTS goals ("
 					+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
 					+ "type TEXT NOT NULL CHECK(type IN ('WEEKLY','MONTHLY','QUARTERLY','SEMI_ANNUAL','ANNUAL')),"
