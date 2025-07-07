@@ -23,7 +23,7 @@ public class DatabaseManager {
 					+ "focus_area TEXT NOT NULL,"
 					+ "exercise TEXT NOT NULL,"
 					+ "tempo INTEGER DEFAULT 0,"
-					+ "error_rate REAL DEFAULT 0.0,"
+					+ "error_rate INTEGER DEFAULT 0,"
 					+ "notes TEXT)";
 			stmt.execute(createEntriesTable);
 

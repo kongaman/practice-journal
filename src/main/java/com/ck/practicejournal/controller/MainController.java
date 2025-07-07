@@ -23,17 +23,31 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class MainController {
 
-	@FXML private VBox goalsContainer;
-	@FXML private DatePicker datePicker;
-	@FXML private TableView<PracticeEntry> entriesTable;
-	@FXML private TextField durationField;
-	@FXML private ComboBox<String> focusCombo;
+	@FXML
+	private VBox goalsContainer;
+	@FXML
+	private DatePicker datePicker;
+	@FXML
+	private TableView<PracticeEntry> entriesTable;
+	@FXML
+	private TextField durationField;
+	@FXML
+	private TextField exerciseField;
+	@FXML
+	private TextField tempoField;
+	@FXML
+	private TextField errorField;
+	@FXML
+	private TextArea notesField;
+	@FXML
+	private ComboBox<String> focusCombo;
 
 	private final PracticeDao journalDao = new PracticeDao();
 	private final GoalDao goalDao = new GoalDao();
@@ -76,16 +90,10 @@ public class MainController {
 		HBox goalBox = new HBox(10);
 		goalBox.setPadding(new Insets(5));
 
-		ProgressBar progressBar = new ProgressBar(
-				goal.getCurrentValue() / goal.getTargetValue()
-				);
+		ProgressBar progressBar = new ProgressBar(goal.getCurrentValue() / goal.getTargetValue());
 		progressBar.setPrefWidth(200);
 
-		Label label = new Label(String.format("%s: %.0f/%.0f",
-				goal.getDescription(),
-				goal.getCurrentValue(),
-				goal.getTargetValue()
-				));
+		Label label = new Label(String.format("%s: %.0f/%.0f", goal.getDescription(), goal.getCurrentValue(), goal.getTargetValue()));
 
 		goalBox.getChildren().addAll(progressBar, label);
 		return goalBox;
@@ -101,18 +109,24 @@ public class MainController {
 
 	private void configureTableColumns() {
 		TableColumn<PracticeEntry, String> focusCol = new TableColumn<>("Fokus");
-		focusCol.setCellValueFactory(cellData ->
-		new SimpleStringProperty(cellData.getValue().getFocusArea()));
+		focusCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFocusArea()));
 
 		TableColumn<PracticeEntry, String> exerciseCol = new TableColumn<>("Übung");
-		exerciseCol.setCellValueFactory(cellData ->
-		new SimpleStringProperty(cellData.getValue().getExercise()));
+		exerciseCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getExercise()));
 
 		TableColumn<PracticeEntry, Number> durationCol = new TableColumn<>("Dauer (min)");
-		durationCol.setCellValueFactory(cellData ->
-		new SimpleIntegerProperty(cellData.getValue().getDurationMinutes()));
+		durationCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getDurationMinutes()));
 
-		entriesTable.getColumns().addAll(focusCol, exerciseCol, durationCol);
+		TableColumn<PracticeEntry, Number> tempoCol = new TableColumn<>("BPM");
+		tempoCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getTempoBpm()));
+
+		TableColumn<PracticeEntry, Number> errorCol = new TableColumn<>("Fehlerquote");
+		errorCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getErrorRate()));
+
+		TableColumn<PracticeEntry, String> notesCol = new TableColumn<>("Notizen");
+		notesCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNotes()));
+
+		entriesTable.getColumns().addAll(focusCol, exerciseCol, durationCol, tempoCol, errorCol, notesCol);
 		entriesTable.setItems(entries);
 	}
 
@@ -138,21 +152,22 @@ public class MainController {
 		try {
 			int duration = Integer.parseInt(durationField.getText());
 			String focus = focusCombo.getValue();
+			String excercise = exerciseField.getText();
+			int tempo = Integer.parseInt(tempoField.getText());
+			int errors = Integer.parseInt(errorField.getText());
+			String notes = notesField.getText();
 
-			PracticeEntry entry = new PracticeEntry(
-					LocalDate.now(),
-					duration,
-					focus,
-					"Übung", // Temporär
-					0,       // Tempo
-					0.0,     // Fehlerquote
-					""       // Notizen
-					);
+			PracticeEntry entry = new PracticeEntry(LocalDate.now(), duration, focus, excercise, tempo, errors, notes);
+			System.out.println(entry.toString());
 
 			journalDao.addEntry(entry);
 
-			durationField.clear();
 			focusCombo.getSelectionModel().clearSelection();
+			durationField.clear();
+			exerciseField.clear();
+			tempoField.clear();
+			errorField.clear();
+			notesField.clear();
 
 		} catch (NumberFormatException e) {
 			showError("Ungültige Eingabe. Bitte eine Zahl für die Dauer eingeben");

@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.ComboBox?>
 
 <VBox xmlns="http://javafx.com/javafx"
@@ -27,15 +28,26 @@
 
     <Label text="Neuer Eintrag:" style="-fx-font-weight: bold;"/>
     <GridPane hgap="10" vgap="10">
-        <Label text="Dauer (min):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="durationField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    	<Label text="Fokusbereich:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="focusCombo" GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.columnSpan="6"/>
         
-        <Label text="Fokusbereich:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="focusCombo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Übung" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="exerciseField" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="6"/>
         
+        <Label text="Dauer (min):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="durationField" GridPane.rowIndex="2" GridPane.columnIndex="1" prefWidth="40" maxWidth="40"/>
         
-        <Button text="Speichern" onAction="#handleSaveEntry" 
-                GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+        <Label text="Tempo (bpm):" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+        <TextField fx:id="tempoField" GridPane.rowIndex="2" GridPane.columnIndex="4" prefWidth="40" maxWidth="40"/>
+        
+        <Label text="Fehlerquote in %:" GridPane.rowIndex="2" GridPane.columnIndex="5"/>
+        <TextField fx:id="errorField" GridPane.rowIndex="2" GridPane.columnIndex="6" prefWidth="40" maxWidth="40"/>
+        
+        <Label text="Notizen:" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.valignment="TOP"/>
+        <TextArea fx:id="notesField" GridPane.rowIndex="3" GridPane.columnIndex="1" GridPane.columnSpan="6"
+        	prefRowCount="3" prefWidth="300" wrapText="true"/>
+        
+        <Button text="Speichern" onAction="#handleSaveEntry" GridPane.rowIndex="4" GridPane.columnIndex="6" GridPane.halignment="RIGHT"/>
     </GridPane>
 
     <Label text="Einträge für heute:" style="-fx-font-weight: bold;"/>

@@ -2,10 +2,8 @@ package com.ck.practicejournal.model;
 
 import java.time.LocalDate;
 
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -16,26 +14,23 @@ public class PracticeEntry {
 	private final IntegerProperty durationMinutes = new SimpleIntegerProperty();
 	private final StringProperty focusArea = new SimpleStringProperty();
 	private final StringProperty exercise = new SimpleStringProperty();
-	private final IntegerProperty tempoBPM = new SimpleIntegerProperty();
-	private final DoubleProperty errorRate = new SimpleDoubleProperty();
+	private final IntegerProperty tempoBpm = new SimpleIntegerProperty();
+	private final IntegerProperty errorRate = new SimpleIntegerProperty();
 	private final StringProperty notes = new SimpleStringProperty();
 
 	public PracticeEntry() {
-		// Default-Konstruktor
 	}
 
-	public PracticeEntry(LocalDate date, int durationMinutes, String focusArea,
-			String exercise, int tempoBPM, double errorRate, String notes) {
+	public PracticeEntry(LocalDate date, int durationMinutes, String focusArea, String exercise, int tempoBPM, int errorRate, String notes) {
 		setDate(date);
 		setDurationMinutes(durationMinutes);
 		setFocusArea(focusArea);
 		setExercise(exercise);
-		setTempoBPM(tempoBPM);
+		setTempoBpm(tempoBPM);
 		setErrorRate(errorRate);
 		setNotes(notes);
 	}
 
-	// Date Property
 	public ObjectProperty<LocalDate> dateProperty() {
 		return date;
 	}
@@ -84,27 +79,27 @@ public class PracticeEntry {
 		this.exercise.set(exercise);
 	}
 
-	public IntegerProperty tempoBPMProperty() {
-		return tempoBPM;
+	public IntegerProperty tempoBpmProperty() {
+		return tempoBpm;
 	}
 
-	public int getTempoBPM() {
-		return tempoBPM.get();
+	public int getTempoBpm() {
+		return tempoBpm.get();
 	}
 
-	public void setTempoBPM(int tempoBPM) {
-		this.tempoBPM.set(tempoBPM);
+	public void setTempoBpm(int tempoBpm) {
+		this.tempoBpm.set(tempoBpm);
 	}
 
-	public DoubleProperty errorRateProperty() {
+	public IntegerProperty errorRateProperty() {
 		return errorRate;
 	}
 
-	public double getErrorRate() {
+	public int getErrorRate() {
 		return errorRate.get();
 	}
 
-	public void setErrorRate(double errorRate) {
+	public void setErrorRate(int errorRate) {
 		this.errorRate.set(errorRate);
 	}
 
@@ -122,6 +117,7 @@ public class PracticeEntry {
 
 	@Override
 	public String toString() {
-		return String.format("%s: %s (%d min)", getFocusArea(), getExercise(), getDurationMinutes());
+		return "PracticeEntry [date=" + date + ", durationMinutes=" + durationMinutes + ", focusArea=" + focusArea + ", exercise=" + exercise
+				+ ", tempoBPM=" + tempoBpm + ", errorRate=" + errorRate + ", notes=" + notes + "]";
 	}
 }
