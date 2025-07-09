@@ -8,7 +8,9 @@ import com.ck.practicejournal.dao.GoalDao;
 import com.ck.practicejournal.dao.PracticeDao;
 import com.ck.practicejournal.model.Goal;
 import com.ck.practicejournal.model.PracticeEntry;
+import com.ck.practicejournal.util.DataChangeListener;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -28,7 +30,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public class MainController {
+public class MainController implements DataChangeListener {
 
 	@FXML
 	private VBox goalsContainer;
@@ -60,6 +62,11 @@ public class MainController {
 
 		LocalDate today = LocalDate.now();
 		datePicker.setValue(today);
+		datePicker.valueProperty().addListener((obs, oldDate, newDate) -> {
+			loadEntriesForDate(newDate);
+			loadAndDisplayGoals(newDate);
+		});
+		journalDao.addDataChangeListener(this);
 
 		loadAndDisplayGoals(today);
 
@@ -67,10 +74,7 @@ public class MainController {
 
 		configureTableColumns();
 
-		datePicker.valueProperty().addListener((obs, oldDate, newDate) -> {
-			loadEntriesForDate(newDate);
-			loadAndDisplayGoals(newDate);
-		});
+		refreshData();
 	}
 
 	private void loadAndDisplayGoals(LocalDate date) {
@@ -179,5 +183,23 @@ public class MainController {
 	private void showError(String message) {
 		Alert alert = new Alert(Alert.AlertType.ERROR, message);
 		alert.showAndWait();
+	}
+
+	@Override
+	public void onDataChanged() {
+		Platform.runLater(this::refreshData);
+	}
+
+	private void refreshData() {
+		try {
+			LocalDate currentDate = datePicker.getValue();
+			entries.setAll(journalDao.getEntriesByDate(currentDate));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void cleanup() {
+		journalDao.removeDataChangeListener(this);
 	}
 }

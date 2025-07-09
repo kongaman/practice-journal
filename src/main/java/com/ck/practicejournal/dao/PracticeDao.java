@@ -9,9 +9,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ck.practicejournal.model.PracticeEntry;
+import com.ck.practicejournal.util.DataChangeListener;
 import com.ck.practicejournal.util.DatabaseManager;
 
 public class PracticeDao {
+
+	private final List<DataChangeListener> listeners = new ArrayList<>();
+
+	public void addDataChangeListener(DataChangeListener listener) {
+		listeners.add(listener);
+	}
+
+	public void removeDataChangeListener(DataChangeListener listener) {
+		listeners.remove(listener);
+	}
+
+	private void notifyDataChanged() {
+		for (DataChangeListener listener : listeners) {
+			listener.onDataChanged();
+		}
+	}
 
 	public void addEntry(PracticeEntry entry) throws SQLException {
 		String sql = "INSERT INTO entries(date, duration, focus_area, exercise, tempo, error_rate, notes) " + "VALUES(?,?,?,?,?,?,?)";
@@ -26,8 +43,8 @@ public class PracticeDao {
 			pstmt.setInt(6, entry.getErrorRate());
 			pstmt.setString(7, entry.getNotes());
 
-			System.out.println(pstmt.toString());
 			pstmt.executeUpdate();
+			notifyDataChanged();
 		}
 	}
 
