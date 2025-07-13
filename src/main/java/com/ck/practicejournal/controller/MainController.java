@@ -1,5 +1,6 @@
 package com.ck.practicejournal.controller;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -16,9 +17,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -29,9 +34,13 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 public class MainController implements DataChangeListener {
 
+	@FXML
+	private Button manageGoalsButton;
 	@FXML
 	private VBox goalsContainer;
 	@FXML
@@ -59,7 +68,7 @@ public class MainController implements DataChangeListener {
 	public void initialize() {
 
 		focusCombo.getItems().addAll("Akkordwechsel", "Soli", "Rhythmik", "Skalen");
-
+		manageGoalsButton.setOnAction(e -> showGoalsManager());
 		LocalDate today = LocalDate.now();
 		datePicker.setValue(today);
 		datePicker.valueProperty().addListener((obs, oldDate, newDate) -> {
@@ -67,19 +76,36 @@ public class MainController implements DataChangeListener {
 			loadAndDisplayGoals(newDate);
 		});
 		journalDao.addDataChangeListener(this);
-
 		loadAndDisplayGoals(today);
-
 		loadEntriesForDate(today);
-
 		configureTableColumns();
-
 		refreshData();
+	}
+
+	@FXML
+	private void showGoalsManager() {
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ck/practicejournal/goals-view.fxml"));
+			Parent root = loader.load();
+
+			GoalOverviewController controller = loader.getController();
+			controller.setGoalDao(goalDao);
+
+			Stage stage = new Stage();
+			stage.setTitle("Ziele verwalten");
+			stage.setScene(new Scene(root));
+			stage.initModality(Modality.APPLICATION_MODAL);
+			stage.showAndWait();
+
+			loadAndDisplayGoals(datePicker.getValue());
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void loadAndDisplayGoals(LocalDate date) {
 		goalsContainer.getChildren().clear();
-
 		try {
 			List<Goal> activeGoals = goalDao.getActiveGoals(date);
 			for (Goal goal : activeGoals) {
@@ -93,12 +119,9 @@ public class MainController implements DataChangeListener {
 	private Node createGoalDisplay(Goal goal) {
 		HBox goalBox = new HBox(10);
 		goalBox.setPadding(new Insets(5));
-
 		ProgressBar progressBar = new ProgressBar(goal.getCurrentValue() / goal.getTargetValue());
 		progressBar.setPrefWidth(200);
-
 		Label label = new Label(String.format("%s: %.0f/%.0f", goal.getDescription(), goal.getCurrentValue(), goal.getTargetValue()));
-
 		goalBox.getChildren().addAll(progressBar, label);
 		return goalBox;
 	}
@@ -114,24 +137,54 @@ public class MainController implements DataChangeListener {
 	private void configureTableColumns() {
 		TableColumn<PracticeEntry, String> focusCol = new TableColumn<>("Fokus");
 		focusCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFocusArea()));
-
 		TableColumn<PracticeEntry, String> exerciseCol = new TableColumn<>("Übung");
 		exerciseCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getExercise()));
-
 		TableColumn<PracticeEntry, Number> durationCol = new TableColumn<>("Dauer (min)");
 		durationCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getDurationMinutes()));
-
 		TableColumn<PracticeEntry, Number> tempoCol = new TableColumn<>("BPM");
 		tempoCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getTempoBpm()));
-
 		TableColumn<PracticeEntry, Number> errorCol = new TableColumn<>("Fehlerquote");
 		errorCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getErrorRate()));
-
 		TableColumn<PracticeEntry, String> notesCol = new TableColumn<>("Notizen");
 		notesCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNotes()));
-
 		entriesTable.getColumns().addAll(focusCol, exerciseCol, durationCol, tempoCol, errorCol, notesCol);
 		entriesTable.setItems(entries);
+	}
+
+	private void refreshData() {
+		try {
+			LocalDate currentDate = datePicker.getValue();
+			entries.setAll(journalDao.getEntriesByDate(currentDate));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@FXML
+	private void handleSaveEntry() {
+		try {
+			int duration = Integer.parseInt(durationField.getText());
+			String focus = focusCombo.getValue();
+			String excercise = exerciseField.getText();
+			int tempo = Integer.parseInt(tempoField.getText());
+			int errors = Integer.parseInt(errorField.getText());
+			String notes = notesField.getText();
+
+			PracticeEntry entry = new PracticeEntry(LocalDate.now(), duration, focus, excercise, tempo, errors, notes);
+			journalDao.addEntry(entry);
+
+			focusCombo.getSelectionModel().clearSelection();
+			durationField.clear();
+			exerciseField.clear();
+			tempoField.clear();
+			errorField.clear();
+			notesField.clear();
+
+		} catch (NumberFormatException e) {
+			showError("Ungültige Eingabe. Bitte eine Zahl für die Dauer eingeben");
+		} catch (SQLException e) {
+			showError("Datenbankfehler. Eintrag konnte nicht gespeichert werden");
+		}
 	}
 
 	@FXML
@@ -151,35 +204,6 @@ public class MainController implements DataChangeListener {
 		datePicker.setValue(LocalDate.now());
 	}
 
-	@FXML
-	private void handleSaveEntry() {
-		try {
-			int duration = Integer.parseInt(durationField.getText());
-			String focus = focusCombo.getValue();
-			String excercise = exerciseField.getText();
-			int tempo = Integer.parseInt(tempoField.getText());
-			int errors = Integer.parseInt(errorField.getText());
-			String notes = notesField.getText();
-
-			PracticeEntry entry = new PracticeEntry(LocalDate.now(), duration, focus, excercise, tempo, errors, notes);
-			System.out.println(entry.toString());
-
-			journalDao.addEntry(entry);
-
-			focusCombo.getSelectionModel().clearSelection();
-			durationField.clear();
-			exerciseField.clear();
-			tempoField.clear();
-			errorField.clear();
-			notesField.clear();
-
-		} catch (NumberFormatException e) {
-			showError("Ungültige Eingabe. Bitte eine Zahl für die Dauer eingeben");
-		} catch (SQLException e) {
-			showError("Datenbankfehler. Eintrag konnte nicht gespeichert werden");
-		}
-	}
-
 	private void showError(String message) {
 		Alert alert = new Alert(Alert.AlertType.ERROR, message);
 		alert.showAndWait();
@@ -188,15 +212,6 @@ public class MainController implements DataChangeListener {
 	@Override
 	public void onDataChanged() {
 		Platform.runLater(this::refreshData);
-	}
-
-	private void refreshData() {
-		try {
-			LocalDate currentDate = datePicker.getValue();
-			entries.setAll(journalDao.getEntriesByDate(currentDate));
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public void cleanup() {

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.ck.practicejournal.controller.GoalOverviewController"
+      spacing="10" alignment="CENTER">
+
+    <TableView fx:id="goalsTable">
+        <columns>
+            <TableColumn text="Typ">
+                <cellValueFactory>
+                    <PropertyValueFactory property="type"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Startdatum">
+                <cellValueFactory>
+                    <PropertyValueFactory property="startDate"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Beschreibung">
+                <cellValueFactory>
+                    <PropertyValueFactory property="description"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Zielwert">
+                <cellValueFactory>
+                    <PropertyValueFactory property="targetValue"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Aktuell">
+                <cellValueFactory>
+                    <PropertyValueFactory property="currentValue"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+
+    <HBox spacing="10">
+        <Button text="Neues Ziel" onAction="#handleNewGoal"/>
+        <Button text="Bearbeiten" onAction="#handleEditSelected"/>
+        <Button text="Löschen" onAction="#handleDeleteSelected"/>
+        <Button text="Schließen" onAction="#handleClose"/>
+    </HBox>
+</VBox>

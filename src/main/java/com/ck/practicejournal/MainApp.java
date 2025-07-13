@@ -17,7 +17,7 @@ public class MainApp extends Application {
 
 		FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("main-view.fxml"));
 
-		Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+		Scene scene = new Scene(fxmlLoader.load(), 600, 800);
 
 		scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
 
