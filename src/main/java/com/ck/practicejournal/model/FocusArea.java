@@ -1,5 +1,7 @@
 package com.ck.practicejournal.model;
 
+import java.util.Objects;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -53,6 +55,23 @@ public class FocusArea {
 
 	public void setUsageCount(int count) {
 		usageCount.set(count);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		FocusArea focusArea = (FocusArea) o;
+		return id.get() == focusArea.id.get();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id.get());
 	}
 
 }

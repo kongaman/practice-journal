@@ -42,7 +42,7 @@ public class PracticeDao {
 
 			String entrySql = "INSERT INTO entries(date, duration, exercise, tempo, error_rate, notes) " + "VALUES(?,?,?,?,?,?)";
 
-			try (PreparedStatement entryStmt = conn.prepareStatement(entrySql, Statement.RETURN_GENERATED_KEYS)) {
+			try (PreparedStatement entryStmt = conn.prepareStatement(entrySql)) {
 				entryStmt.setString(1, entry.getDate().toString());
 				entryStmt.setInt(2, entry.getDurationMinutes());
 				entryStmt.setString(3, entry.getExercise());
@@ -52,9 +52,10 @@ public class PracticeDao {
 
 				entryStmt.executeUpdate();
 
-				try (ResultSet generatedKeys = entryStmt.getGeneratedKeys()) {
-					if (generatedKeys.next()) {
-						int entryId = generatedKeys.getInt(1);
+				// SQLite-specific
+				try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT last_insert_rowid()")) {
+					if (rs.next()) {
+						int entryId = rs.getInt(1);
 						saveFocusRelationships(conn, entryId, entry.getFocusAreas());
 					}
 				}

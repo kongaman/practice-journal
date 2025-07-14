@@ -31,15 +31,16 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -91,19 +92,44 @@ public class MainController implements DataChangeListener {
 		loadEntriesForDate(today);
 		configureTableColumns();
 		refreshData();
-		focusList.setCellFactory(CheckBoxListCell.forListView(item -> {
-			BooleanProperty selected = new SimpleBooleanProperty(selectedFocusAreas.contains(item));
-			selected.addListener((obs, wasSelected, isSelected) -> {
-				if (isSelected) {
-					selectedFocusAreas.add(item);
-				} else {
-					selectedFocusAreas.remove(item);
-				}
-			});
-			return selected;
-		}));
+		focusList.setCellFactory(lv -> new ListCell<FocusArea>() {
+			private final CheckBox checkBox = new CheckBox();
+			private BooleanProperty currentSelectedProperty = null;
 
-		focusList.setItems(availableFocusAreas);
+			{
+				// Listener für CheckBox-Änderungen
+				checkBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+					FocusArea item = getItem();
+					if (item != null && currentSelectedProperty != null) {
+						currentSelectedProperty.set(newVal);
+					}
+				});
+			}
+
+			@Override
+			protected void updateItem(FocusArea item, boolean empty) {
+				super.updateItem(item, empty);
+
+				// Alte Bindung entfernen
+				if (currentSelectedProperty != null) {
+					checkBox.selectedProperty().unbindBidirectional(currentSelectedProperty);
+					currentSelectedProperty = null;
+				}
+
+				if (empty || item == null) {
+					setGraphic(null);
+				} else {
+					// Neue Bindung erstellen
+					currentSelectedProperty = focusSelectionMap.get(item);
+					if (currentSelectedProperty != null) {
+						checkBox.selectedProperty().bindBidirectional(currentSelectedProperty);
+					}
+
+					checkBox.setText(item.getName());
+					setGraphic(checkBox);
+				}
+			}
+		});
 		loadFocusAreas();
 	}
 
@@ -151,11 +177,19 @@ public class MainController implements DataChangeListener {
 	}
 
 	private void loadFocusAreas() {
-		try {
-			availableFocusAreas.setAll(focusDao.getAllFocusAreas());
-		} catch (SQLException e) {
-			showError("Could not load focus areas: " + e.getMessage());
-		}
+		Platform.runLater(() -> {
+			try {
+				List<FocusArea> areas = focusDao.getAllFocusAreas();
+				focusList.getItems().setAll(areas);
+
+				focusSelectionMap.clear();
+				for (FocusArea area : areas) {
+					focusSelectionMap.put(area, new SimpleBooleanProperty(false));
+				}
+			} catch (SQLException e) {
+				showError("Error loading focus areas: " + e.getMessage());
+			}
+		});
 	}
 
 	private void loadAndDisplayGoals(LocalDate date) {
@@ -227,6 +261,11 @@ public class MainController implements DataChangeListener {
 			String notes = notesField.getText();
 			LocalDate date = datePicker.getValue();
 			ObservableList<FocusArea> selectedFocusAreas = getSelectedFocusAreas();
+			for (FocusArea area : focusList.getItems()) {
+				if (focusSelectionMap.containsKey(area) && focusSelectionMap.get(area).get()) {
+					selectedFocusAreas.add(area);
+				}
+			}
 
 			if (selectedFocusAreas.isEmpty()) {
 				showError("Bitte mindestens einen Fokusbereich auswählen");
@@ -243,12 +282,15 @@ public class MainController implements DataChangeListener {
 		} catch (NumberFormatException e) {
 			showError("Invalid input. Please enter numbers for duration, tempo and error rate.");
 		} catch (SQLException e) {
+			System.out.println(e);
 			showError("Database error. Could not save entry: " + e.getMessage());
 		}
 	}
 
 	private void resetForm() {
-		focusSelectionMap.values().forEach(prop -> prop.set(false));
+		for (BooleanProperty prop : focusSelectionMap.values()) {
+			prop.set(false);
+		}
 		focusList.refresh();
 		durationField.clear();
 		exerciseField.clear();
@@ -258,8 +300,10 @@ public class MainController implements DataChangeListener {
 	}
 
 	private ObservableList<FocusArea> getSelectedFocusAreas() {
-		return focusList.getItems().stream().filter(area -> focusSelectionMap.get(area).get())
-				.collect(Collectors.toCollection(FXCollections::observableArrayList));
+		return focusList.getItems().stream().filter(area -> {
+			BooleanProperty prop = focusSelectionMap.get(area);
+			return prop != null && prop.get();
+		}).collect(Collectors.toCollection(FXCollections::observableArrayList));
 	}
 
 	@FXML
