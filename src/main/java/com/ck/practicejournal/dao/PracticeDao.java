@@ -8,8 +8,10 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.ck.practicejournal.model.FocusArea;
 import com.ck.practicejournal.model.PracticeEntry;
@@ -78,10 +80,13 @@ public class PracticeDao {
 		String relationSql = "INSERT INTO entry_focus(entry_id, focus_id) VALUES(?,?)";
 
 		try (PreparedStatement relationStmt = conn.prepareStatement(relationSql)) {
+			Set<Integer> addedFocusIds = new HashSet<>();
 			for (FocusArea focus : focusAreas) {
-				relationStmt.setInt(1, entryId);
-				relationStmt.setInt(2, focus.getId());
-				relationStmt.addBatch();
+				if (addedFocusIds.add(focus.getId())) {
+					relationStmt.setInt(1, entryId);
+					relationStmt.setInt(2, focus.getId());
+					relationStmt.addBatch();
+				}
 			}
 			relationStmt.executeBatch();
 		}

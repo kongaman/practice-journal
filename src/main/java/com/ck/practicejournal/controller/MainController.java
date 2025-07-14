@@ -3,9 +3,12 @@ package com.ck.practicejournal.controller;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.ck.practicejournal.dao.FocusDao;
@@ -260,23 +263,27 @@ public class MainController implements DataChangeListener {
 			int errors = Integer.parseInt(errorField.getText());
 			String notes = notesField.getText();
 			LocalDate date = datePicker.getValue();
-			ObservableList<FocusArea> selectedFocusAreas = getSelectedFocusAreas();
+
+			Set<Integer> seenIds = new HashSet<>();
+			List<FocusArea> uniqueFocusAreas = new ArrayList<>();
+
 			for (FocusArea area : focusList.getItems()) {
 				if (focusSelectionMap.containsKey(area) && focusSelectionMap.get(area).get()) {
-					selectedFocusAreas.add(area);
+					if (seenIds.add(area.getId())) {
+						uniqueFocusAreas.add(area);
+					}
 				}
 			}
 
-			if (selectedFocusAreas.isEmpty()) {
+			if (uniqueFocusAreas.isEmpty()) {
 				showError("Bitte mindestens einen Fokusbereich auswählen");
 				return;
 			}
 
 			PracticeEntry entry = new PracticeEntry(date, duration, exercise, tempo, errors, notes);
-			entry.getFocusAreas().addAll(selectedFocusAreas);
+			entry.getFocusAreas().addAll(uniqueFocusAreas);
 
 			journalDao.addEntry(entry);
-
 			resetForm();
 
 		} catch (NumberFormatException e) {
@@ -297,13 +304,6 @@ public class MainController implements DataChangeListener {
 		tempoField.clear();
 		errorField.clear();
 		notesField.clear();
-	}
-
-	private ObservableList<FocusArea> getSelectedFocusAreas() {
-		return focusList.getItems().stream().filter(area -> {
-			BooleanProperty prop = focusSelectionMap.get(area);
-			return prop != null && prop.get();
-		}).collect(Collectors.toCollection(FXCollections::observableArrayList));
 	}
 
 	@FXML
