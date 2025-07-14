@@ -106,7 +106,7 @@ public class MainController implements DataChangeListener {
 					focusSelectionMap.put(area, new SimpleBooleanProperty(false));
 				}
 			} catch (SQLException e) {
-				showError("Fehler beim Laden der Fokusbereiche: " + e.getMessage());
+				showError("Error loading focuses: " + e.getMessage());
 			}
 		});
 	}
@@ -116,7 +116,7 @@ public class MainController implements DataChangeListener {
 			entries.setAll(practiceService.getEntriesForDate(date));
 			entriesTable.setItems(entries);
 		} catch (SQLException e) {
-			showError("Fehler beim Laden der Einträge: " + e.getMessage());
+			showError("Error loading Practice Entries: " + e.getMessage());
 		}
 	}
 
@@ -128,7 +128,7 @@ public class MainController implements DataChangeListener {
 				goalsContainer.getChildren().add(createGoalDisplay(goal));
 			}
 		} catch (SQLException e) {
-			showError("Fehler beim Laden der Ziele: " + e.getMessage());
+			showError("Error loading Goals: " + e.getMessage());
 		}
 	}
 
@@ -152,14 +152,14 @@ public class MainController implements DataChangeListener {
 			controller.setGoalDao(goalService.getGoalDao());
 
 			Stage stage = new Stage();
-			stage.setTitle("Ziele verwalten");
+			stage.setTitle("Manage Goals");
 			stage.setScene(new Scene(root));
 			stage.initModality(Modality.APPLICATION_MODAL);
 			stage.showAndWait();
 
 			loadAndDisplayGoals(datePicker.getValue());
 		} catch (IOException e) {
-			showError("Fehler beim Öffnen der Zielverwaltung: " + e.getMessage());
+			showError("Error opening Goals-Management: " + e.getMessage());
 		}
 	}
 
@@ -173,14 +173,14 @@ public class MainController implements DataChangeListener {
 			controller.setFocusDao(focusService.getFocusDao());
 
 			Stage stage = new Stage();
-			stage.setTitle("Fokusbereiche verwalten");
+			stage.setTitle("Manage Focuses");
 			stage.setScene(new Scene(root));
 			stage.initModality(Modality.APPLICATION_MODAL);
 			stage.showAndWait();
 
 			loadFocusAreas();
 		} catch (IOException e) {
-			showError("Fehler beim Öffnen der Fokusverwaltung: " + e.getMessage());
+			showError("Error opening Focus-Management: " + e.getMessage());
 		}
 	}
 
@@ -199,7 +199,7 @@ public class MainController implements DataChangeListener {
 					.filter(area -> seenIds.add(area.getId())).toList();
 
 			if (selectedAreas.isEmpty()) {
-				showError("Bitte mindestens einen Fokusbereich auswählen.");
+				showError("Please chose at least one focus.");
 				return;
 			}
 
@@ -210,9 +210,9 @@ public class MainController implements DataChangeListener {
 			resetForm();
 
 		} catch (NumberFormatException e) {
-			showError("Bitte Zahlen für Dauer, Tempo und Fehlerquote eingeben.");
+			showError("Please enter numbers for Duration, Tempo and Error Rate.");
 		} catch (SQLException e) {
-			showError("Fehler beim Speichern: " + e.getMessage());
+			showError("Save Error: " + e.getMessage());
 		}
 	}
 

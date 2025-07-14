@@ -16,12 +16,12 @@
 	xmlns:fx="http://javafx.com/fxml"
 	fx:controller="com.ck.practicejournal.controller.MainController">
 
-	<Label text="Aktive Ziele:" style="-fx-font-weight: bold;" />
+	<Label text="Current Goals:" style="-fx-font-weight: bold;" />
 	<VBox fx:id="goalsContainer" />
 
 	<HBox spacing="10" alignment="CENTER_RIGHT">
-		<Button text="Heute" onAction="#handleToday" />
-		<Button text="Ziele verwalten" onAction="#showGoalsManager"
+		<Button text="Today" onAction="#handleToday" />
+		<Button text="Manage Goals" onAction="#showGoalsManager"
 			fx:id="manageGoalsButton" />
 	</HBox>
 
@@ -29,12 +29,12 @@
 		<Button text="←" onAction="#handlePreviousDay" />
 		<DatePicker fx:id="datePicker" />
 		<Button text="→" onAction="#handleNextDay" />
-		<Button text="Heute" onAction="#handleToday" />
+		<Button text="Today" onAction="#handleToday" />
 	</HBox>
 
-	<Label text="Neuer Eintrag:" style="-fx-font-weight: bold;" />
+	<Label text="Add Entry:" style="-fx-font-weight: bold;" />
 	<GridPane hgap="10" vgap="10">
-		<Label text="Fokusbereich:" GridPane.rowIndex="0"
+		<Label text="Focus:" GridPane.rowIndex="0"
 			GridPane.columnIndex="0" />
 		<HBox GridPane.rowIndex="0" GridPane.columnIndex="1"
 			GridPane.columnSpan="6">
@@ -42,12 +42,12 @@
 			<Button text="Manage Focus" onAction="#showFocusManager" />
 		</HBox>
 
-		<Label text="Übung" GridPane.rowIndex="1"
+		<Label text="Excercise" GridPane.rowIndex="1"
 			GridPane.columnIndex="0" />
 		<TextField fx:id="exerciseField" GridPane.rowIndex="1"
 			GridPane.columnIndex="1" GridPane.columnSpan="6" />
 
-		<Label text="Dauer (min):" GridPane.rowIndex="2"
+		<Label text="Duration (min):" GridPane.rowIndex="2"
 			GridPane.columnIndex="0" />
 		<TextField fx:id="durationField" GridPane.rowIndex="2"
 			GridPane.columnIndex="1" prefWidth="40" maxWidth="40" />
@@ -57,23 +57,23 @@
 		<TextField fx:id="tempoField" GridPane.rowIndex="2"
 			GridPane.columnIndex="4" prefWidth="40" maxWidth="40" />
 
-		<Label text="Fehlerquote in %:" GridPane.rowIndex="2"
+		<Label text="Error Rate (%):" GridPane.rowIndex="2"
 			GridPane.columnIndex="5" />
 		<TextField fx:id="errorField" GridPane.rowIndex="2"
 			GridPane.columnIndex="6" prefWidth="40" maxWidth="40" />
 
-		<Label text="Notizen:" GridPane.rowIndex="3"
+		<Label text="Notes:" GridPane.rowIndex="3"
 			GridPane.columnIndex="0" GridPane.valignment="TOP" />
 		<TextArea fx:id="notesField" GridPane.rowIndex="3"
 			GridPane.columnIndex="1" GridPane.columnSpan="6" prefRowCount="3"
 			prefWidth="300" wrapText="true" />
 
-		<Button text="Speichern" onAction="#handleSaveEntry"
+		<Button text="Save" onAction="#handleSaveEntry"
 			GridPane.rowIndex="4" GridPane.columnIndex="6"
 			GridPane.halignment="RIGHT" />
 	</GridPane>
 
-	<Label text="Einträge für heute:" style="-fx-font-weight: bold;" />
+	<Label text="Today's Entries:" style="-fx-font-weight: bold;" />
 	<TableView fx:id="entriesTable">
 	</TableView>
 </VBox>

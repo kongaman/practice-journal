@@ -77,7 +77,7 @@ public class GoalEditController {
 			closeWindow();
 
 		} catch (Exception e) {
-			showAlert("Fehler", "Ungültige Eingabe: " + e.getMessage());
+			showAlert("Error", "Not a valid entry: " + e.getMessage());
 		}
 	}
 

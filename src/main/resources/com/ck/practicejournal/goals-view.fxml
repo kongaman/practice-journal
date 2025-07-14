@@ -2,46 +2,51 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.geometry.Insets?>
 
 <VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.ck.practicejournal.controller.GoalOverviewController"
-      spacing="10" alignment="CENTER">
+	xmlns:fx="http://javafx.com/fxml"
+	fx:controller="com.ck.practicejournal.controller.GoalOverviewController"
+	spacing="10" alignment="CENTER">
 
-    <TableView fx:id="goalsTable">
-        <columns>
-            <TableColumn text="Typ">
-                <cellValueFactory>
-                    <PropertyValueFactory property="type"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn text="Startdatum">
-                <cellValueFactory>
-                    <PropertyValueFactory property="startDate"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn text="Beschreibung">
-                <cellValueFactory>
-                    <PropertyValueFactory property="description"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn text="Zielwert">
-                <cellValueFactory>
-                    <PropertyValueFactory property="targetValue"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn text="Aktuell">
-                <cellValueFactory>
-                    <PropertyValueFactory property="currentValue"/>
-                </cellValueFactory>
-            </TableColumn>
-        </columns>
-    </TableView>
+	<padding>
+		<Insets top="20" right="20" bottom="20" left="20" />
+	</padding>
 
-    <HBox spacing="10">
-        <Button text="Neues Ziel" onAction="#handleNewGoal"/>
-        <Button text="Bearbeiten" onAction="#handleEditSelected"/>
-        <Button text="Löschen" onAction="#handleDeleteSelected"/>
-        <Button text="Schließen" onAction="#handleClose"/>
-    </HBox>
+	<TableView fx:id="goalsTable">
+		<columns>
+			<TableColumn text="Type">
+				<cellValueFactory>
+					<PropertyValueFactory property="type" />
+				</cellValueFactory>
+			</TableColumn>
+			<TableColumn text="Start Date">
+				<cellValueFactory>
+					<PropertyValueFactory property="startDate" />
+				</cellValueFactory>
+			</TableColumn>
+			<TableColumn text="Description">
+				<cellValueFactory>
+					<PropertyValueFactory property="description" />
+				</cellValueFactory>
+			</TableColumn>
+			<TableColumn text="Target Value">
+				<cellValueFactory>
+					<PropertyValueFactory property="targetValue" />
+				</cellValueFactory>
+			</TableColumn>
+			<TableColumn text="Current Value">
+				<cellValueFactory>
+					<PropertyValueFactory property="currentValue" />
+				</cellValueFactory>
+			</TableColumn>
+		</columns>
+	</TableView>
+
+	<HBox spacing="10">
+		<Button text="Add" onAction="#handleNewGoal" />
+		<Button text="Edit" onAction="#handleEditSelected" />
+		<Button text="Delete" onAction="#handleDeleteSelected" />
+		<Button text="Close" onAction="#handleClose" />
+	</HBox>
 </VBox>

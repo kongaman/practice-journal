@@ -2,39 +2,45 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.geometry.Insets?>
 
 <VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.ck.practicejournal.controller.FocusManagerController"
-      spacing="10" alignment="CENTER" 
-      styleClass="root">
-      
-    <Label text="Manage Focus Areas" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
-    
-    <TableView fx:id="focusTable">
-        <columns>
-            <TableColumn text="Name">
-                <cellValueFactory>
-                    <PropertyValueFactory property="name"/>
-                </cellValueFactory>
-            </TableColumn>
-            <TableColumn text="Usage Count">
-                <cellValueFactory>
-                    <PropertyValueFactory property="usageCount"/>
-                </cellValueFactory>
-            </TableColumn>
-        </columns>
-    </TableView>
-    
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="New Focus:"/>
-        <TextField fx:id="newFocusField" promptText="Enter focus name" prefWidth="200"/>
-        <Button text="Add" onAction="#handleAddFocus"/>
-    </HBox>
-    
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button text="Edit" onAction="#handleEditSelected"/>
-        <Button text="Delete" onAction="#handleDeleteSelected"/>
-        <Button text="Close" onAction="#handleClose"/>
-    </HBox>
+	xmlns:fx="http://javafx.com/fxml"
+	fx:controller="com.ck.practicejournal.controller.FocusManagerController"
+	spacing="10" alignment="CENTER" styleClass="root">
+	
+	<padding>
+		<Insets top="20" right="20" bottom="20" left="20" />
+	</padding>
+
+	<Label text="Manage Focus Areas"
+		style="-fx-font-weight: bold; -fx-font-size: 16px;" />
+
+	<TableView fx:id="focusTable">
+		<columns>
+			<TableColumn text="Name">
+				<cellValueFactory>
+					<PropertyValueFactory property="name" />
+				</cellValueFactory>
+			</TableColumn>
+			<TableColumn text="Usage Count">
+				<cellValueFactory>
+					<PropertyValueFactory property="usageCount" />
+				</cellValueFactory>
+			</TableColumn>
+		</columns>
+	</TableView>
+
+	<HBox spacing="10" alignment="CENTER_LEFT">
+		<Label text="New Focus:" />
+		<TextField fx:id="newFocusField"
+			promptText="Enter focus name" prefWidth="200" />
+		<Button text="Add" onAction="#handleAddFocus" />
+	</HBox>
+
+	<HBox spacing="10" alignment="CENTER_RIGHT">
+		<Button text="Edit" onAction="#handleEditSelected" />
+		<Button text="Delete" onAction="#handleDeleteSelected" />
+		<Button text="Close" onAction="#handleClose" />
+	</HBox>
 </VBox>

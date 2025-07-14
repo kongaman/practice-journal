@@ -14,25 +14,25 @@ public class MainViewInitializer {
 
 	public void configureTableColumns(TableView<PracticeEntry> tableView) {
 
-		TableColumn<PracticeEntry, String> exerciseCol = new TableColumn<>("Übung");
+		TableColumn<PracticeEntry, String> exerciseCol = new TableColumn<>("Excercise");
 		exerciseCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getExercise()));
 
-		TableColumn<PracticeEntry, String> focusCol = new TableColumn<>("Fokusbereiche");
+		TableColumn<PracticeEntry, String> focusCol = new TableColumn<>("Focus(es)");
 		focusCol.setCellValueFactory(cellData -> {
 			String focusNames = cellData.getValue().getFocusAreas().stream().map(FocusArea::getName).collect(Collectors.joining(", "));
 			return new SimpleStringProperty(focusNames);
 		});
 
-		TableColumn<PracticeEntry, Number> durationCol = new TableColumn<>("Dauer (min)");
+		TableColumn<PracticeEntry, Number> durationCol = new TableColumn<>("Duration (min)");
 		durationCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getDurationMinutes()));
 
 		TableColumn<PracticeEntry, Number> tempoCol = new TableColumn<>("BPM");
 		tempoCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getTempoBpm()));
 
-		TableColumn<PracticeEntry, Number> errorCol = new TableColumn<>("Fehlerquote");
+		TableColumn<PracticeEntry, Number> errorCol = new TableColumn<>("Error Rate (%)");
 		errorCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getErrorRate()));
 
-		TableColumn<PracticeEntry, String> notesCol = new TableColumn<>("Notizen");
+		TableColumn<PracticeEntry, String> notesCol = new TableColumn<>("Notes");
 		notesCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNotes()));
 
 		tableView.getColumns().addAll(exerciseCol, focusCol, durationCol, tempoCol, errorCol, notesCol);
