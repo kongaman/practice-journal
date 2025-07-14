@@ -37,7 +37,7 @@ public class DatabaseManager {
 			try (ResultSet rs = stmt.executeQuery(countQuery)) {
 				if (rs.next() && rs.getInt(1) == 0) {
 					String[] initialFocusAreas = { "Alternate Picking", "Economy Picking", "Sweeping", "Legato", "Bending", "Vibrato", "Tapping",
-							"Timing", "Improvisation", "Fretboard Knowledge", "Scales", "Chord Changes" };
+							"Timing", "Improvisation", "Fretboard Knowledge", "Scales" };
 
 					String insertSql = "INSERT INTO focus_areas (name) VALUES (?)";
 					try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
