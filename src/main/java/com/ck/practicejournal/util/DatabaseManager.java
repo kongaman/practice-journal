@@ -2,6 +2,8 @@ package com.ck.practicejournal.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -30,6 +32,24 @@ public class DatabaseManager {
 			String createExcerciseFocus = "CREATE TABLE IF NOT EXISTS entry_focus (entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE,"
 					+ " focus_id INTEGER NOT NULL REFERENCES focus_areas(id), PRIMARY KEY (entry_id, focus_id))";
 			stmt.execute(createExcerciseFocus);
+
+			String countQuery = "SELECT COUNT(*) FROM focus_areas";
+			try (ResultSet rs = stmt.executeQuery(countQuery)) {
+				if (rs.next() && rs.getInt(1) == 0) {
+					String[] initialFocusAreas = { "Alternate Picking", "Economy Picking", "Sweeping", "Legato", "Bending", "Vibrato", "Tapping",
+							"Timing", "Improvisation", "Fretboard Knowledge", "Scales" };
+
+					String insertSql = "INSERT INTO focus_areas (name) VALUES (?)";
+					try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+						for (String name : initialFocusAreas) {
+							pstmt.setString(1, name);
+							pstmt.executeUpdate();
+						}
+					}
+
+					System.out.println("Standard-Focus Areas eingefügt.");
+				}
+			}
 
 			System.out.println("Datenbank erfolgreich initialisiert!");
 
