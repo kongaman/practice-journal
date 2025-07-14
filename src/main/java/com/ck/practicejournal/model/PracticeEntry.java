@@ -8,27 +8,45 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class PracticeEntry {
+	private IntegerProperty id = new SimpleIntegerProperty();
 	private final ObjectProperty<LocalDate> date = new SimpleObjectProperty<>();
 	private final IntegerProperty durationMinutes = new SimpleIntegerProperty();
-	private final StringProperty focusArea = new SimpleStringProperty();
 	private final StringProperty exercise = new SimpleStringProperty();
 	private final IntegerProperty tempoBpm = new SimpleIntegerProperty();
 	private final IntegerProperty errorRate = new SimpleIntegerProperty();
 	private final StringProperty notes = new SimpleStringProperty();
+	private final ObservableList<FocusArea> focusAreas = FXCollections.observableArrayList();
 
 	public PracticeEntry() {
 	}
 
-	public PracticeEntry(LocalDate date, int durationMinutes, String focusArea, String exercise, int tempoBPM, int errorRate, String notes) {
+	public PracticeEntry(LocalDate date, int durationMinutes, String exercise, int tempoBPM, int errorRate, String notes) {
 		setDate(date);
 		setDurationMinutes(durationMinutes);
-		setFocusArea(focusArea);
 		setExercise(exercise);
 		setTempoBpm(tempoBPM);
 		setErrorRate(errorRate);
 		setNotes(notes);
+	}
+
+	public IntegerProperty idProperty() {
+		return id;
+	}
+
+	public int getId() {
+		return id.get();
+	}
+
+	public void setId(int id) {
+		this.id.set(id);
+	}
+
+	public ObservableList<FocusArea> getFocusAreas() {
+		return focusAreas;
 	}
 
 	public ObjectProperty<LocalDate> dateProperty() {
@@ -53,18 +71,6 @@ public class PracticeEntry {
 
 	public void setDurationMinutes(int durationMinutes) {
 		this.durationMinutes.set(durationMinutes);
-	}
-
-	public StringProperty focusAreaProperty() {
-		return focusArea;
-	}
-
-	public String getFocusArea() {
-		return focusArea.get();
-	}
-
-	public void setFocusArea(String focusArea) {
-		this.focusArea.set(focusArea);
 	}
 
 	public StringProperty exerciseProperty() {
@@ -117,7 +123,8 @@ public class PracticeEntry {
 
 	@Override
 	public String toString() {
-		return "PracticeEntry [date=" + date + ", durationMinutes=" + durationMinutes + ", focusArea=" + focusArea + ", exercise=" + exercise
-				+ ", tempoBPM=" + tempoBpm + ", errorRate=" + errorRate + ", notes=" + notes + "]";
+		return "PracticeEntry [id=" + id + ", date=" + date + ", durationMinutes=" + durationMinutes + ", exercise=" + exercise + ", tempoBpm="
+				+ tempoBpm + ", errorRate=" + errorRate + ", notes=" + notes + ", focusAreas=" + focusAreas + "]";
 	}
+
 }

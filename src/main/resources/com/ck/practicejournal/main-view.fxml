@@ -10,6 +10,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ListView?>
 
 <VBox xmlns="http://javafx.com/javafx"
 	xmlns:fx="http://javafx.com/fxml"
@@ -35,8 +36,11 @@
 	<GridPane hgap="10" vgap="10">
 		<Label text="Fokusbereich:" GridPane.rowIndex="0"
 			GridPane.columnIndex="0" />
-		<ComboBox fx:id="focusCombo" GridPane.rowIndex="0"
-			GridPane.columnIndex="1" GridPane.columnSpan="6" />
+		<HBox GridPane.rowIndex="0" GridPane.columnIndex="1"
+			GridPane.columnSpan="6">
+			<ListView fx:id="focusList" prefWidth="200" prefHeight="100" />
+			<Button text="Manage Focus" onAction="#showFocusManager" />
+		</HBox>
 
 		<Label text="Übung" GridPane.rowIndex="1"
 			GridPane.columnIndex="0" />

@@ -25,9 +25,7 @@ public class Goal {
 	public Goal() {
 	}
 
-	public Goal(int id, GoalType type, LocalDate startDate,
-			String description, double targetValue,
-			double currentValue, boolean achieved) {
+	public Goal(int id, GoalType type, LocalDate startDate, String description, double targetValue, double currentValue, boolean achieved) {
 		setId(id);
 		setType(type);
 		setStartDate(startDate);

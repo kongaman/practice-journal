@@ -33,7 +33,7 @@ public class GoalDao {
 		List<Goal> goals = new ArrayList<>();
 		String sql = "SELECT * FROM goals WHERE start_date <= ? " + "AND date(?, '+' || " + "CASE type " + "  WHEN 'WEEKLY' THEN '7 days' "
 				+ "  WHEN 'MONTHLY' THEN '1 month' " + "  WHEN 'QUARTERLY' THEN '3 months' " + "  WHEN 'SEMI_ANNUAL' THEN '6 months' "
-				+ "  WHEN 'ANNUAL' THEN '1 year' " + "END) > start_date " + "AND achieved = 0";
+				+ "  WHEN 'ANNUAL' THEN '1 year' " + "END) > start_date";
 
 		try (Connection conn = DatabaseManager.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
