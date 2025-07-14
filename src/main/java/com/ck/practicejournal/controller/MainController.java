@@ -15,6 +15,7 @@ import com.ck.practicejournal.model.PracticeEntry;
 import com.ck.practicejournal.service.FocusService;
 import com.ck.practicejournal.service.GoalService;
 import com.ck.practicejournal.service.PracticeService;
+import com.ck.practicejournal.util.AlertUtils;
 import com.ck.practicejournal.util.DataChangeListener;
 import com.ck.practicejournal.view.FocusAreaCellFactory;
 import com.ck.practicejournal.view.MainViewInitializer;
@@ -30,7 +31,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -106,7 +106,7 @@ public class MainController implements DataChangeListener {
 					focusSelectionMap.put(area, new SimpleBooleanProperty(false));
 				}
 			} catch (SQLException e) {
-				showError("Error loading focuses: " + e.getMessage());
+				AlertUtils.showError("Error", "Load focuses failed: " + e.getMessage());
 			}
 		});
 	}
@@ -116,7 +116,7 @@ public class MainController implements DataChangeListener {
 			entries.setAll(practiceService.getEntriesForDate(date));
 			entriesTable.setItems(entries);
 		} catch (SQLException e) {
-			showError("Error loading Practice Entries: " + e.getMessage());
+			AlertUtils.showError("Error", "Load Practice Entries failed: " + e.getMessage());
 		}
 	}
 
@@ -128,7 +128,7 @@ public class MainController implements DataChangeListener {
 				goalsContainer.getChildren().add(createGoalDisplay(goal));
 			}
 		} catch (SQLException e) {
-			showError("Error loading Goals: " + e.getMessage());
+			AlertUtils.showError("Error", "Load Goals failed: " + e.getMessage());
 		}
 	}
 
@@ -159,7 +159,7 @@ public class MainController implements DataChangeListener {
 
 			loadAndDisplayGoals(datePicker.getValue());
 		} catch (IOException e) {
-			showError("Error opening Goals-Management: " + e.getMessage());
+			AlertUtils.showError("Error", "Open Goals-Managemnt failed: " + e.getMessage());
 		}
 	}
 
@@ -180,7 +180,7 @@ public class MainController implements DataChangeListener {
 
 			loadFocusAreas();
 		} catch (IOException e) {
-			showError("Error opening Focus-Management: " + e.getMessage());
+			AlertUtils.showError("Error", "Open Focus-Managemnt failed: " + e.getMessage());
 		}
 	}
 
@@ -199,7 +199,7 @@ public class MainController implements DataChangeListener {
 					.filter(area -> seenIds.add(area.getId())).toList();
 
 			if (selectedAreas.isEmpty()) {
-				showError("Please chose at least one focus.");
+				AlertUtils.showInfo("Info", "Please chose at least one focus.");
 				return;
 			}
 
@@ -210,9 +210,9 @@ public class MainController implements DataChangeListener {
 			resetForm();
 
 		} catch (NumberFormatException e) {
-			showError("Please enter numbers for Duration, Tempo and Error Rate.");
+			AlertUtils.showInfo("Info", "Please enter numbers for Duration, Tempo and Error Rate.");
 		} catch (SQLException e) {
-			showError("Save Error: " + e.getMessage());
+			AlertUtils.showError("Error", "Save Entry failed: " + e.getMessage());
 		}
 	}
 
@@ -241,10 +241,6 @@ public class MainController implements DataChangeListener {
 	@FXML
 	private void handleToday() {
 		datePicker.setValue(LocalDate.now());
-	}
-
-	private void showError(String message) {
-		new Alert(Alert.AlertType.ERROR, message).showAndWait();
 	}
 
 	@Override

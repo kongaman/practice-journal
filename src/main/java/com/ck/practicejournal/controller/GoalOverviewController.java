@@ -5,12 +5,12 @@ import java.sql.SQLException;
 
 import com.ck.practicejournal.dao.GoalDao;
 import com.ck.practicejournal.model.Goal;
+import com.ck.practicejournal.util.AlertUtils;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -50,7 +50,7 @@ public class GoalOverviewController {
 			stage.showAndWait();
 
 		} catch (IOException e) {
-			showAlert("Fehler", "Fenster konnte nicht geöffnet werden: " + e.getMessage());
+			AlertUtils.showError("Error", "Could not open Window: " + e.getMessage());
 		}
 	}
 
@@ -74,7 +74,7 @@ public class GoalOverviewController {
 				stage.showAndWait();
 
 			} catch (IOException e) {
-				showAlert("Fehler", "Fenster konnte nicht geöffnet werden: " + e.getMessage());
+				AlertUtils.showError("Error", "Could not open Window: " + e.getMessage());
 			}
 		}
 	}
@@ -87,7 +87,7 @@ public class GoalOverviewController {
 				goalDao.deleteGoal(selected.getId());
 				refreshGoals();
 			} catch (SQLException e) {
-				showAlert("Fehler", "Löschen fehlgeschlagen: " + e.getMessage());
+				AlertUtils.showError("Error", "Delete failed: " + e.getMessage());
 			}
 		}
 	}
@@ -101,15 +101,7 @@ public class GoalOverviewController {
 		try {
 			goalsTable.getItems().setAll(goalDao.getAllGoals());
 		} catch (SQLException e) {
-			showAlert("Fehler", "Ziele konnten nicht geladen werden: " + e.getMessage());
+			AlertUtils.showError("Error", "Load Goals failed: " + e.getMessage());
 		}
-	}
-
-	private void showAlert(String title, String message) {
-		Alert alert = new Alert(Alert.AlertType.ERROR);
-		alert.setTitle(title);
-		alert.setHeaderText(null);
-		alert.setContentText(message);
-		alert.showAndWait();
 	}
 }

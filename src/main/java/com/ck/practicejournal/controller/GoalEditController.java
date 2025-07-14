@@ -3,9 +3,9 @@ package com.ck.practicejournal.controller;
 import com.ck.practicejournal.dao.GoalDao;
 import com.ck.practicejournal.model.Goal;
 import com.ck.practicejournal.model.GoalType;
+import com.ck.practicejournal.util.AlertUtils;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
@@ -77,7 +77,7 @@ public class GoalEditController {
 			closeWindow();
 
 		} catch (Exception e) {
-			showAlert("Error", "Not a valid entry: " + e.getMessage());
+			AlertUtils.showError("Error", "Not a valid entry: " + e.getMessage());
 		}
 	}
 
@@ -90,11 +90,4 @@ public class GoalEditController {
 		descriptionField.getScene().getWindow().hide();
 	}
 
-	private void showAlert(String title, String message) {
-		Alert alert = new Alert(Alert.AlertType.ERROR);
-		alert.setTitle(title);
-		alert.setHeaderText(null);
-		alert.setContentText(message);
-		alert.showAndWait();
-	}
 }

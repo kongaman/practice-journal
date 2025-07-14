@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.ck.practicejournal.dao.FocusDao;
 import com.ck.practicejournal.model.FocusArea;
+import com.ck.practicejournal.util.AlertUtils;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -47,7 +48,7 @@ public class FocusManagerController {
 				refreshFocusAreas();
 				newFocusField.clear();
 			} catch (SQLException e) {
-				showAlert("Database Error", "Could not add focus area: " + e.getMessage());
+				AlertUtils.showError("Error", "Add focus failed: " + e.getMessage());
 			}
 		}
 	}
@@ -68,7 +69,7 @@ public class FocusManagerController {
 					focusDao.updateFocusArea(selected);
 					refreshFocusAreas();
 				} catch (SQLException e) {
-					showAlert("Update Error", "Could not update focus area: " + e.getMessage());
+					AlertUtils.showError("Error", "Update focus failed: " + e.getMessage());
 				}
 			});
 		}
@@ -89,7 +90,7 @@ public class FocusManagerController {
 					focusDao.deleteFocusArea(selected.getId());
 					refreshFocusAreas();
 				} catch (SQLException e) {
-					showAlert("Deletion Error", "Could not delete focus area: " + e.getMessage());
+					AlertUtils.showError("Error", "Delete focus failed: " + e.getMessage());
 				}
 			}
 		}
@@ -104,15 +105,8 @@ public class FocusManagerController {
 		try {
 			focusAreas.setAll(focusDao.getAllFocusAreas());
 		} catch (SQLException e) {
-			showAlert("Load Error", "Could not load focus areas: " + e.getMessage());
+			AlertUtils.showError("Error", "Load focus failed: " + e.getMessage());
 		}
 	}
 
-	private void showAlert(String title, String message) {
-		Alert alert = new Alert(Alert.AlertType.ERROR);
-		alert.setTitle(title);
-		alert.setHeaderText(null);
-		alert.setContentText(message);
-		alert.showAndWait();
-	}
 }
