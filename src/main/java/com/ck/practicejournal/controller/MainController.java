@@ -3,27 +3,25 @@ package com.ck.practicejournal.controller;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import com.ck.practicejournal.dao.FocusDao;
-import com.ck.practicejournal.dao.GoalDao;
-import com.ck.practicejournal.dao.PracticeDao;
 import com.ck.practicejournal.model.FocusArea;
 import com.ck.practicejournal.model.Goal;
 import com.ck.practicejournal.model.PracticeEntry;
+import com.ck.practicejournal.service.FocusService;
+import com.ck.practicejournal.service.GoalService;
+import com.ck.practicejournal.service.PracticeService;
 import com.ck.practicejournal.util.DataChangeListener;
+import com.ck.practicejournal.view.FocusAreaCellFactory;
+import com.ck.practicejournal.view.MainViewInitializer;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -34,13 +32,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -72,133 +67,63 @@ public class MainController implements DataChangeListener {
 	@FXML
 	private ListView<FocusArea> focusList;
 
-	private final ObservableList<FocusArea> availableFocusAreas = FXCollections.observableArrayList();
-	private final ObservableList<FocusArea> selectedFocusAreas = FXCollections.observableArrayList();
 	private final ObservableList<PracticeEntry> entries = FXCollections.observableArrayList();
 	private final Map<FocusArea, BooleanProperty> focusSelectionMap = new HashMap<>();
-	private final PracticeDao journalDao = new PracticeDao();
-	private final GoalDao goalDao = new GoalDao();
-	private final FocusDao focusDao = new FocusDao();
+
+	private final PracticeService practiceService = new PracticeService();
+	private final GoalService goalService = new GoalService();
+	private final FocusService focusService = new FocusService();
+	private final MainViewInitializer viewInitializer = new MainViewInitializer();
 
 	@FXML
 	public void initialize() {
+		viewInitializer.configureTableColumns(entriesTable);
+		focusList.setCellFactory(new FocusAreaCellFactory(focusSelectionMap));
 
 		manageGoalsButton.setOnAction(e -> showGoalsManager());
+
 		LocalDate today = LocalDate.now();
 		datePicker.setValue(today);
 		datePicker.valueProperty().addListener((obs, oldDate, newDate) -> {
 			loadEntriesForDate(newDate);
 			loadAndDisplayGoals(newDate);
 		});
-		journalDao.addDataChangeListener(this);
+
+		practiceService.addDataChangeListener(this::refreshData);
+
 		loadAndDisplayGoals(today);
 		loadEntriesForDate(today);
-		configureTableColumns();
-		refreshData();
-		focusList.setCellFactory(lv -> new ListCell<FocusArea>() {
-			private final CheckBox checkBox = new CheckBox();
-			private BooleanProperty currentSelectedProperty = null;
-
-			{
-				// Listener für CheckBox-Änderungen
-				checkBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
-					FocusArea item = getItem();
-					if (item != null && currentSelectedProperty != null) {
-						currentSelectedProperty.set(newVal);
-					}
-				});
-			}
-
-			@Override
-			protected void updateItem(FocusArea item, boolean empty) {
-				super.updateItem(item, empty);
-
-				// Alte Bindung entfernen
-				if (currentSelectedProperty != null) {
-					checkBox.selectedProperty().unbindBidirectional(currentSelectedProperty);
-					currentSelectedProperty = null;
-				}
-
-				if (empty || item == null) {
-					setGraphic(null);
-				} else {
-					// Neue Bindung erstellen
-					currentSelectedProperty = focusSelectionMap.get(item);
-					if (currentSelectedProperty != null) {
-						checkBox.selectedProperty().bindBidirectional(currentSelectedProperty);
-					}
-
-					checkBox.setText(item.getName());
-					setGraphic(checkBox);
-				}
-			}
-		});
 		loadFocusAreas();
-	}
-
-	@FXML
-	private void showGoalsManager() {
-		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ck/practicejournal/goals-view.fxml"));
-			Parent root = loader.load();
-
-			GoalOverviewController controller = loader.getController();
-			controller.setGoalDao(goalDao);
-
-			Stage stage = new Stage();
-			stage.setTitle("Ziele verwalten");
-			stage.setScene(new Scene(root));
-			stage.initModality(Modality.APPLICATION_MODAL);
-			stage.showAndWait();
-
-			loadAndDisplayGoals(datePicker.getValue());
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@FXML
-	private void showFocusManager() {
-		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ck/practicejournal/focus-view.fxml"));
-			Parent root = loader.load();
-
-			FocusManagerController controller = loader.getController();
-			controller.setFocusDao(focusDao); // Du musst FocusDao in MainController injizieren
-
-			Stage stage = new Stage();
-			stage.setTitle("Manage Focus Areas");
-			stage.setScene(new Scene(root));
-			stage.initModality(Modality.APPLICATION_MODAL);
-			stage.showAndWait();
-
-			loadFocusAreas();
-		} catch (IOException e) {
-			showError("Could not open focus manager: " + e.getMessage());
-		}
 	}
 
 	private void loadFocusAreas() {
 		Platform.runLater(() -> {
 			try {
-				List<FocusArea> areas = focusDao.getAllFocusAreas();
+				List<FocusArea> areas = focusService.getAllFocusAreas();
 				focusList.getItems().setAll(areas);
-
 				focusSelectionMap.clear();
 				for (FocusArea area : areas) {
 					focusSelectionMap.put(area, new SimpleBooleanProperty(false));
 				}
 			} catch (SQLException e) {
-				showError("Error loading focus areas: " + e.getMessage());
+				showError("Fehler beim Laden der Fokusbereiche: " + e.getMessage());
 			}
 		});
+	}
+
+	private void loadEntriesForDate(LocalDate date) {
+		try {
+			entries.setAll(practiceService.getEntriesForDate(date));
+			entriesTable.setItems(entries);
+		} catch (SQLException e) {
+			showError("Fehler beim Laden der Einträge: " + e.getMessage());
+		}
 	}
 
 	private void loadAndDisplayGoals(LocalDate date) {
 		goalsContainer.getChildren().clear();
 		try {
-			List<Goal> activeGoals = goalDao.getActiveGoals(date);
+			List<Goal> activeGoals = goalService.getActiveGoals(date);
 			for (Goal goal : activeGoals) {
 				goalsContainer.getChildren().add(createGoalDisplay(goal));
 			}
@@ -217,40 +142,45 @@ public class MainController implements DataChangeListener {
 		return goalBox;
 	}
 
-	private void loadEntriesForDate(LocalDate date) {
+	@FXML
+	private void showGoalsManager() {
 		try {
-			entries.setAll(journalDao.getEntriesByDate(date));
-		} catch (SQLException e) {
-			showError("Fehler beim Laden der Einträge: " + e.getMessage());
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ck/practicejournal/goals-view.fxml"));
+			Parent root = loader.load();
+
+			GoalOverviewController controller = loader.getController();
+			controller.setGoalDao(goalService.getGoalDao());
+
+			Stage stage = new Stage();
+			stage.setTitle("Ziele verwalten");
+			stage.setScene(new Scene(root));
+			stage.initModality(Modality.APPLICATION_MODAL);
+			stage.showAndWait();
+
+			loadAndDisplayGoals(datePicker.getValue());
+		} catch (IOException e) {
+			showError("Fehler beim Öffnen der Zielverwaltung: " + e.getMessage());
 		}
 	}
 
-	private void configureTableColumns() {
-		TableColumn<PracticeEntry, String> focusCol = new TableColumn<>("Fokusbereiche");
-		focusCol.setCellValueFactory(cellData -> {
-			String focusNames = cellData.getValue().getFocusAreas().stream().map(FocusArea::getName).collect(Collectors.joining(", "));
-			return new SimpleStringProperty(focusNames);
-		});
-		TableColumn<PracticeEntry, String> exerciseCol = new TableColumn<>("Übung");
-		exerciseCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getExercise()));
-		TableColumn<PracticeEntry, Number> durationCol = new TableColumn<>("Dauer (min)");
-		durationCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getDurationMinutes()));
-		TableColumn<PracticeEntry, Number> tempoCol = new TableColumn<>("BPM");
-		tempoCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getTempoBpm()));
-		TableColumn<PracticeEntry, Number> errorCol = new TableColumn<>("Fehlerquote");
-		errorCol.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getErrorRate()));
-		TableColumn<PracticeEntry, String> notesCol = new TableColumn<>("Notizen");
-		notesCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNotes()));
-		entriesTable.getColumns().addAll(focusCol, exerciseCol, durationCol, tempoCol, errorCol, notesCol);
-		entriesTable.setItems(entries);
-	}
-
-	private void refreshData() {
+	@FXML
+	private void showFocusManager() {
 		try {
-			LocalDate currentDate = datePicker.getValue();
-			entries.setAll(journalDao.getEntriesByDate(currentDate));
-		} catch (SQLException e) {
-			e.printStackTrace();
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/ck/practicejournal/focus-view.fxml"));
+			Parent root = loader.load();
+
+			FocusManagerController controller = loader.getController();
+			controller.setFocusDao(focusService.getFocusDao());
+
+			Stage stage = new Stage();
+			stage.setTitle("Fokusbereiche verwalten");
+			stage.setScene(new Scene(root));
+			stage.initModality(Modality.APPLICATION_MODAL);
+			stage.showAndWait();
+
+			loadFocusAreas();
+		} catch (IOException e) {
+			showError("Fehler beim Öffnen der Fokusverwaltung: " + e.getMessage());
 		}
 	}
 
@@ -265,32 +195,24 @@ public class MainController implements DataChangeListener {
 			LocalDate date = datePicker.getValue();
 
 			Set<Integer> seenIds = new HashSet<>();
-			List<FocusArea> uniqueFocusAreas = new ArrayList<>();
+			List<FocusArea> selectedAreas = focusList.getItems().stream().filter(area -> focusSelectionMap.get(area).get())
+					.filter(area -> seenIds.add(area.getId())).toList();
 
-			for (FocusArea area : focusList.getItems()) {
-				if (focusSelectionMap.containsKey(area) && focusSelectionMap.get(area).get()) {
-					if (seenIds.add(area.getId())) {
-						uniqueFocusAreas.add(area);
-					}
-				}
-			}
-
-			if (uniqueFocusAreas.isEmpty()) {
-				showError("Bitte mindestens einen Fokusbereich auswählen");
+			if (selectedAreas.isEmpty()) {
+				showError("Bitte mindestens einen Fokusbereich auswählen.");
 				return;
 			}
 
 			PracticeEntry entry = new PracticeEntry(date, duration, exercise, tempo, errors, notes);
-			entry.getFocusAreas().addAll(uniqueFocusAreas);
+			entry.getFocusAreas().addAll(selectedAreas);
 
-			journalDao.addEntry(entry);
+			practiceService.addEntry(entry);
 			resetForm();
 
 		} catch (NumberFormatException e) {
-			showError("Invalid input. Please enter numbers for duration, tempo and error rate.");
+			showError("Bitte Zahlen für Dauer, Tempo und Fehlerquote eingeben.");
 		} catch (SQLException e) {
-			System.out.println(e);
-			showError("Database error. Could not save entry: " + e.getMessage());
+			showError("Fehler beim Speichern: " + e.getMessage());
 		}
 	}
 
@@ -308,14 +230,12 @@ public class MainController implements DataChangeListener {
 
 	@FXML
 	private void handlePreviousDay() {
-		LocalDate current = datePicker.getValue();
-		datePicker.setValue(current.minusDays(1));
+		datePicker.setValue(datePicker.getValue().minusDays(1));
 	}
 
 	@FXML
 	private void handleNextDay() {
-		LocalDate current = datePicker.getValue();
-		datePicker.setValue(current.plusDays(1));
+		datePicker.setValue(datePicker.getValue().plusDays(1));
 	}
 
 	@FXML
@@ -324,8 +244,7 @@ public class MainController implements DataChangeListener {
 	}
 
 	private void showError(String message) {
-		Alert alert = new Alert(Alert.AlertType.ERROR, message);
-		alert.showAndWait();
+		new Alert(Alert.AlertType.ERROR, message).showAndWait();
 	}
 
 	@Override
@@ -333,7 +252,12 @@ public class MainController implements DataChangeListener {
 		Platform.runLater(this::refreshData);
 	}
 
+	private void refreshData() {
+		loadEntriesForDate(datePicker.getValue());
+	}
+
 	public void cleanup() {
-		journalDao.removeDataChangeListener(this);
+		// Optional — falls PracticeService später explizites Entfernen von Listenern
+		// anbietet
 	}
 }
